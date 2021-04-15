@@ -244,17 +244,20 @@ class Game:
 
         # Find trade candidates for the auctioneer
         self._log.info(f"Starting trading phase for {auctioneer.name}.")
-        candidates = self._owners.apply(
-            self._trade_candidates,
-            auctioneer_name=auctioneer.name,
-            threshold=self._config.get("trade_threshold"),
-        ).dropna()
 
-        if candidates.empty:
+        candidates = {}
+        for animal in self._owners.columns:
+            candidate = self._trade_candidates(
+                self._owners[animal],
+                auctioneer_name=auctioneer.name,
+                threshold=self._config.get("trade_threshold"),
+            )
+            if candidate:
+                candidates[animal] = candidate
+
+        if not candidates:
             self._log.info("No suitable trading options.")
             return
-
-        candidates = candidates.to_dict()
 
         # Auctioneer decides on making an initial offer
         self._log.info(
