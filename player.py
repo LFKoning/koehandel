@@ -16,18 +16,21 @@ class Player:
         Object containing the YAML configuration.
     """
 
-    def __init__(self, name, config):
+    def __init__(self, name, config, strategy):
 
+        # Store settings
         self.name = name
-        self._config = config
         self.budget = config.get("start_budget")
 
+        self._strategy = strategy
+        self._score_budget = config.get("score_budget", False)
+        self._score_threshold = config.get("score_threshold", True)
+
+        # Initialize hand
         animals = config.get("animals")
         self._hand = pd.DataFrame(
             {"count": [0] * len(animals), "value": animals.values()}, index=animals,
         )
-
-        self._strategy = Strategy(animals)
 
     def add_animal(self, animal):
         """Adds an animal to the player's hand.
@@ -78,7 +81,7 @@ class Player:
         self_collected = self.count(animal)
         opponent_collected = total_collected - self_collected
         bid = self._strategy.bid(
-            animal, self_collected, opponent_collected, self.complete_sets()
+            animal, self_collected, opponent_collected, self.complete_sets
         )
 
         # Cap to budget if requested
@@ -163,13 +166,14 @@ class Player:
             Final score.
         """
 
-        threshold = self._config.get("score_threshold", 4)
         points_total = (
-            self._hand.loc[self._hand["count"] >= threshold].product(axis=1).sum()
+            self._hand.loc[self._hand["count"] >= self._score_threshold]
+            .product(axis=1)
+            .sum()
         )
-        points_total = points_total * self.complete_sets(threshold=threshold)
+        points_total = points_total * self.complete_sets
 
-        if self._config.get("score_budget"):
+        if self._score_budget:
             points_total += self.budget
 
         return points_total
@@ -190,14 +194,10 @@ class Player:
 
         return self._hand.loc[animal, "count"]
 
-    def complete_sets(self, threshold=4):
+    @property
+    def complete_sets(self):
         """Returns the number of completed sets. The threshold determines
         what counts as completed.
-
-        Parameters
-        ----------
-        threshold : Optional[int]
-            Minimal number of animals that count as completed set.
 
         Returns
         -------
@@ -205,7 +205,7 @@ class Player:
             Number of sets the player has completed.
         """
 
-        return (self._hand["count"] >= threshold).sum()
+        return (self._hand["count"] >= self._score_threshold).sum()
 
     def __eq__(self, other):
         """Compare by name only; name should be unique."""

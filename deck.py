@@ -1,5 +1,6 @@
 """Module implementing the Deck class."""
 
+import json
 import random
 
 
@@ -14,8 +15,12 @@ class Deck:
         Number of cards for each animal type, defaults to 4.
     """
 
-    def __init__(self, animals, cards_each=4):
+    def __init__(self, config):
 
+        animals = config.get("animals")
+        cards_each = config.get("cards_each", 4)
+
+        self._pointer = 0
         self._cards = [animal for _ in range(cards_each) for animal in animals]
         random.shuffle(self._cards)
 
@@ -40,6 +45,30 @@ class Deck:
             Name of an animal.
         """
 
-        if self._cards:
-            return self._cards.pop()
+        if self._pointer < len(self._cards):
+            draw = self._cards[self._pointer]
+            self._pointer += 1
+            return draw
         return None
+
+    def serialize(self):
+        """Serializes the deck into a JSON string.
+
+        Returns
+        -------
+        str
+            Cards as JSON string.
+        """
+
+        return json.dumps(self._cards)
+
+    def deserialize(self, json_str):
+        """Loads deck from a JSON string.
+
+        Parameters
+        ----------
+        json_str : str
+            JSON string representation of the cards
+        """
+
+        self._cards = json.loads(json_str)

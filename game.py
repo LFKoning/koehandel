@@ -25,23 +25,24 @@ class Game:
     min_players = 3
     max_players = 5
 
-    def __init__(self, config_file):
+    def __init__(self, config, deck):
 
         self._log = logging.getLogger(__name__)
 
-        self._config = Config(config_file)
+        self._config = config
+        self._bonuses = self._config.get("animal_bonuses")
+
+        self._deck = deck
         self._players = {}
         self._owners = None
-        self._bonuses = self._config.get("animal_bonuses")
-        self._deck = Deck(self._config.get("animals"), self._config.get("animal_cards"))
 
-    def add_player(self, name):
+    def add_player(self, player):
         """Adds a player to the game.
 
         Parameters
         ----------
-        name : str
-            Name for the player, must be unique!
+        player : player.Player
+            Player object, must be unique.
         """
 
         if len(self._players) >= self.max_players:
@@ -49,11 +50,10 @@ class Game:
                 f"Too many players, reached maximum of {self.max_players} players."
             )
 
-        if name in self._players:
-            raise ValueError(f"Player with name '{name}' already exists.")
+        if player in self._players.values():
+            raise ValueError(f"Player {player.name} already exists.")
 
-        player = Player(name, self._config)
-        self._players[name] = player
+        self._players[player.name] = player
 
     def run(self):
         """Runs the simulation."""
@@ -74,9 +74,9 @@ class Game:
         random.shuffle(auctioneers)
         auctioneers = cycle(auctioneers)
 
+        turn = 1
         all_complete = False
         max_turns = self._config.get("max_turns")
-        turn = 1
         while not all_complete:
 
             # Start turn by selecting auctioneer
@@ -93,14 +93,12 @@ class Game:
 
             self._trade(auctioneer)
 
-            # increase turn
-            turn += 1
-
-            # Check stopping criteria
+            # Check whether all sets are completed
             if self._deck.remaining == 0:
                 all_complete = np.all(self._owners.max(axis=0) == 4)
 
-            # Check early stopping criteria
+            # Increase turn and check early stopping
+            turn += 1
             if max_turns > 0 and turn > max_turns:
                 break
 

@@ -16,10 +16,10 @@ class Strategy:
         Dict with modifier settings, used by deserialize method.
     """
 
-    def __init__(self, animals, modifiers=None):
+    def __init__(self, config):
 
-        self._animals = animals
-        self._modifiers = modifiers or {
+        self._animals = config.get("animals")
+        self._modifiers = {
             "animals": self._animal_modifiers(),
             "collected": self._collected_slope(),
             "opponent_collected": self._opponent_slope(),
@@ -140,20 +140,18 @@ class Strategy:
         Returns
         -------
         str
-            JSON representation of the Strategy object.
+            JSON representation of the strategy modifiers.
         """
 
-        return json.dumps({"animals": self._animals, "modifiers": self._modifiers})
+        return json.dumps(self._modifiers)
 
-    @classmethod
-    def deserialize(cls, json_str):
-        """Loads strategy from JSON string.
+    def deserialize(self, json_str):
+        """Loads strategy from a JSON string.
 
-        Returns
-        -------
-        strategy.Strategy
-            Strategy object constrcuted from a JSON string.
+        Parameters
+        ----------
+        json_str : str
+            String representation of the strategy modifiers.
         """
 
-        strat = json.loads(json_str)
-        return cls(strat["animals"], strat["modifiers"])
+        self._modifiers = json.loads(json_str)
