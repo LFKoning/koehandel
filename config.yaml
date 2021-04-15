@@ -1,0 +1,35 @@
+# Maximum number of turns to simulate
+# Note: Set to 0 for no limit
+max_turns: 75
+
+# Set initial player budget
+start_budget: 90
+
+# Smallest bidding unit
+bid_unit: 10
+
+# Trade threshold: players only trade when collecting more animals than this threshold
+trade_threshold: 1
+
+# Scoring threshold: when computing final scores, count sets above this threshold as complete
+score_threshold: 3
+
+# Define animals and associated score points
+animals:
+    Haan:     10
+    Gans:     40
+    Kat:      90
+    Hond:    160
+    Schaap:  250
+    Bok:     350
+    Ezel:    500
+    Varken:  650
+    Koe:     800
+    Paard:  1000
+
+# Number of cards for each animal
+animal_cards: 4
+
+# Set bonuses for animals
+animal_bonuses:
+  Ezel: [50, 100, 200, 500]
