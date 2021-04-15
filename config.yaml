@@ -11,8 +11,11 @@ bid_unit: 10
 # Trade threshold: players only trade when collecting more animals than this threshold
 trade_threshold: 1
 
-# Scoring threshold: when computing final scores, count sets above this threshold as complete
+# Scoring threshold: when computing final scores, count sets above threshold as complete
 score_threshold: 3
+
+# Include remaining budget in the final score
+score_budget: True
 
 # Define animals and associated score points
 animals:

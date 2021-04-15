@@ -153,6 +153,9 @@ class Player:
         1. Select complete sets only.
         2. Sum points for each complete set.
         3. Multiply by the number of sets completed.
+        4. Optional: add remaining player budget.
+
+        TODO: Make sets above threshold complete, so they count as 4 cards.
 
         Returns
         -------
@@ -164,7 +167,12 @@ class Player:
         points_total = (
             self._hand.loc[self._hand["count"] >= threshold].product(axis=1).sum()
         )
-        return points_total * self.complete_sets(threshold=threshold)
+        points_total = points_total * self.complete_sets(threshold=threshold)
+
+        if self._config.get("score_budget"):
+            points_total += self.budget
+
+        return points_total
 
     def count(self, animal):
         """Counts number of animals collected by the player.
