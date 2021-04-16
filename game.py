@@ -29,6 +29,9 @@ class Game:
 
         self._log = logging.getLogger(__name__)
 
+        self.seed = random.randint(0, 1e7)
+        self._random = random.Random(self.seed)
+
         self._config = config
         self._bonuses = self._config.get("animal_bonuses")
 
@@ -71,7 +74,7 @@ class Game:
 
         # Set up auctioneer cycling
         auctioneers = list(self._players)
-        random.shuffle(auctioneers)
+        self._random.shuffle(auctioneers)
         auctioneers = cycle(auctioneers)
 
         turn = 1
@@ -271,7 +274,7 @@ class Game:
             return
 
         # Pick an opponent; random if multiple are eligible.
-        opponent = random.choice(candidates[animal][0])
+        opponent = self._random.choice(candidates[animal][0])
         self._log.info(
             f"{auctioneer.name} wants to trade a {animal} with {opponent} for {offer:.2f}."
         )

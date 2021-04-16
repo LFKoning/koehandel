@@ -16,7 +16,10 @@ class Strategy:
         Dict with modifier settings, used by deserialize method.
     """
 
-    def __init__(self, config):
+    def __init__(self, config, seed=None):
+
+        self.seed = seed or random.randint(1, 1e7)
+        self._random = random.Random(self.seed)
 
         self._animals = config.get("animals")
         self._modifiers = {
@@ -31,33 +34,30 @@ class Strategy:
     def _animal_modifiers(self):
         """Generates dict of bidding propensities for all animals."""
 
-        n_animals = len(self._animals)
-        modifiers = np.random.lognormal(mean=0, sigma=0.5, size=n_animals)
-        return dict(zip(self._animals, modifiers))
+        return {
+            animal: self._random.lognormvariate(mu=0, sigma=0.5)
+            for animal in self._animals
+        }
 
-    @staticmethod
-    def _collected_slope():
+    def _collected_slope(self):
         """Generates modifier for the number of animals collected by the player."""
 
         # Positive slope; more animals collected leads to higher bids.
-        return random.expovariate(10)
+        return self._random.expovariate(10)
 
-    @staticmethod
-    def _opponent_slope():
+    def _opponent_slope(self):
         """Generates modifier for number of animals collected by opponents."""
 
         # Negative slope; lower bids when opponents have collected more animals.
-        return random.expovariate(-10)
+        return self._random.expovariate(-10)
 
-    @staticmethod
-    def _completed_slope():
+    def _completed_slope(self):
         """Generates modifier for the number of completed sets."""
 
         # Assume positive slope; more completed sets leads to higher bids.
-        return random.expovariate(5)
+        return self._random.expovariate(5)
 
-    @staticmethod
-    def _propensities(minimum=0, maximum=100):
+    def _propensities(self, minimum=0, maximum=100):
         """Generates a set of propensities for trading; propensities are modeled as
         percentages and can range from 0 to 100.
 
@@ -74,7 +74,7 @@ class Strategy:
             List of 3 propensity percentages.
         """
 
-        propensities = [random.randint(minimum, maximum) for _ in range(3)]
+        propensities = [self._random.randint(minimum, maximum) for _ in range(3)]
         return sorted(propensities)
 
     def bid(self, animal, player_collected, opponent_collected, ncomplete):
@@ -132,26 +132,4 @@ class Strategy:
         """
 
         modifier = "counter_propensity" if counter else "trade_propensity"
-        return random.randint(0, 100) >= self._modifiers[modifier][collected - 1]
-
-    def serialize(self):
-        """Serializes the strategy into a JSON object.
-
-        Returns
-        -------
-        str
-            JSON representation of the strategy modifiers.
-        """
-
-        return json.dumps(self._modifiers)
-
-    def deserialize(self, json_str):
-        """Loads strategy from a JSON string.
-
-        Parameters
-        ----------
-        json_str : str
-            String representation of the strategy modifiers.
-        """
-
-        self._modifiers = json.loads(json_str)
+        return self._random.randint(0, 100) >= self._modifiers[modifier][collected - 1]
