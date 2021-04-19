@@ -111,6 +111,7 @@ class Game:
             for player_name, player in self._players.items()
         }
         self._log.info(f"Final scores: {scores}")
+        return scores
 
     def _bonus(self, animal):
         """Pays bonuses to all players upon drawing certain animals.

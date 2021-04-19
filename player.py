@@ -16,13 +16,13 @@ class Player:
         Object containing the YAML configuration.
     """
 
-    def __init__(self, name, config, strategy):
+    def __init__(self, config, name, strategy=None):
 
         # Store settings
         self.name = name
         self.budget = config.get("start_budget")
 
-        self._strategy = strategy
+        self._strategy = strategy or Strategy(config)
         self._score_budget = config.get("score_budget", False)
         self._score_threshold = config.get("score_threshold", True)
 

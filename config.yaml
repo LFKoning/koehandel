@@ -1,3 +1,18 @@
+# Number of strategies to simulate
+number_strategies: 8
+
+# Number of times (minimum) to play each strategy
+# Note: the exact number depends on both the total number of
+# strategies and number of players per game.
+play_each_strategy: 2
+
+# Players per game; either 3, 4, or 5.
+players_per_game: 4
+
+# Optional list of player names.
+# Note: length should (at least) match number of players per game.
+player_names:
+
 # Maximum number of turns to simulate
 # Note: Set to 0 for no limit
 max_turns: 75
