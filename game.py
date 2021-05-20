@@ -106,12 +106,18 @@ class Game:
                 break
 
         # Compute final scores
-        scores = {
-            player_name: player.final_score()
+        data = [
+            {
+                "player_name": player.name,
+                "strategy": player._strategy.seed,
+                "final_score": player.final_score(),
+                "final_budget": player.budget,
+                "complete_sets": player.complete_sets,
+            }
             for player_name, player in self._players.items()
-        }
-        self._log.info(f"Final scores: {scores}")
-        return scores
+        ]
+        self._log.info(f"Final scores: {data}")
+        return data
 
     def _bonus(self, animal):
         """Pays bonuses to all players upon drawing certain animals.
